@@ -1,5 +1,5 @@
  ============================================
-===          ARM4U Doccumentation          ===
+===          ARM4U Documentation          ===
 =           By Jonathan Masur, 2014         ==
 = Made in spring 2014 for OpenCores release ==
  ============================================
@@ -10,10 +10,10 @@
  
 ARM4U is a "softcore" processor that was created in the context of an university project in the processor architecture laboratory at Ecole Polytechnique Fédérale de Lausanne ( http://lap.epfl.ch )
 
-We decided, one year after the complexion of the project, to release the processor on the site OpenCores ( http://www.opencores.org ) for free under the GPL licence in order to make the source code and doccumentation available to the general public. It comes as-it with ABSOLUTELY NO WARRANTY.
+We decided, one year after the complexion of the project, to release the processor on the site OpenCores ( http://www.opencores.org ) for free under the GPL licence in order to make the source code and documentations available to the general public. It comes as-it with ABSOLUTELY NO WARRANTY.
 
 The ARM4U processor clones early ARM processors in functionality, it implements the almost full ARMv3 instruction set, and can be targeted by the GCC toolchain. It is free for use and distribute for anyone. However, if someone ever make a cool use of this processor, I would of course be very happy to know about it.
-This documentation doesn't cover the ARM by itself, for most info about the inner working of the processor (instruction set, etc...) please consult doccumentation of the ARM processors. This doccumentation instead covers how to use the softcore and what are the difference between it and a geniune ARM.
+This documentation doesn't cover the ARM by itself, for most info about the inner working of the processor (instruction set, etc...) please consult documentation of the ARM processors. This doccumentation instead covers how to use the softcore and what are the difference between it and a genuine ARM.
 
  **************************************
 ** Internal workings of the processor **
@@ -24,16 +24,16 @@ Since a drawing is worth a thousand words, schematics of the processor are joine
 
 The processor was not build for extreme performance, nor for extreme minimization of FPGA resources. Instead it was build with the 3 goals of : simplicity, pedagogy, but fully working and usable result.
 
-The CPU communicates with the external world (memory, I/O, etc...) through the Altera Avalon bus. The CPU can be used as a QSys component, just like the NIOS II processor furnished by Altera. However, it should be relatively straightforward to adapt it to another bus. We managed to synthesize a 50 MHz version using a Cyclone IV FPGA. The resource usage was only slightly larger than a NIOS II/s (standard), but the frequency was lower. However, the ARM instructions are more dense and efficient overal, and we can expect comparable performance between both CPU. No benchmarks were made to proof that.
+The CPU communicates with the external world (memory, I/O, etc...) through the Altera Avalon bus. The CPU can be used as a QSys component, just like the NIOS II processor furnished by Altera. However, it should be relatively straightforward to adapt it to another bus. We managed to synthesize a 50 MHz version using a Cyclone IV FPGA. The resource usage was only slightly larger than a NIOS II/s (standard), but the frequency was lower. However, the ARM instructions are more dense and efficient overall, and we can expect comparable performance between both CPU. No benchmarks were made to proof that.
 
 The instruction cache allows to fetch instructions while reading/writing to memory, and to fetch a new instruction each cycle (hopefully) even if the memory has a read/write latency (DRAM).
-There is no cache coherency : an attempt to write self-modifying code will not work unless some additional circuitery is added done.
+There is no cache coherency : an attempt to write self-modifying code will not work unless some additional circuitry is added done.
 
  *************************************
 ** Differences with an authentic ARM **
  *************************************
 
-The ARM4U behaves identically to an ARM implementing the ARMv3 instruction set (ARM6 generation) exept for the following differences :
+The ARM4U behaves identically to an ARM implementing the ARMv3 instruction set (ARM6 generation) except for the following differences :
 
 - Abort mode and interrupt doesn't exist
 - There is no support for coprocessor, and related instructions
@@ -82,9 +82,9 @@ However, because of conversion issues of .hex files between 32-bit .hex files an
 2) A bit in object file's header is affected so that it prevents linking big and little endian object files together
 The -EB file doesn't affect the compiled code itself in any way, as far as we know.
 
- *****************
-** Test programm **
- *****************
+ ****************
+** Test program **
+ ****************
 
 A test program using all ARM instructions is included as an example, it was used to debug and proof correct operation of the processor.
 
