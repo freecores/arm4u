@@ -291,7 +291,7 @@ begin
 			case exe_barrelshift_type is
 			when "00" =>		-- LSL #16
 				stage5_dout <= stage4_dout(15 downto 0) & (15 downto 0 => '0');
-				stage5_cout <= stage4_dout(15);
+				stage5_cout <= stage4_dout(16);
 			when "01" =>		-- LSR #16
 				stage5_dout <= (15 downto 0 => '0') & stage4_dout(31 downto 16);
 				stage5_cout <= stage4_dout(15);
