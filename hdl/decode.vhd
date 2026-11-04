@@ -375,6 +375,8 @@ begin
 
 	-- Decoding matrix : please consult the decode matrix spreadsheet for more information about how this works
 	decode : process(state, flush, current_inst, low_flags, reset_l, irq, fiq, mode, f, i, stage_active, ldmstm_cur_bitmask, ldmstm_current_reg, ldmstm_next_bitmask) is
+		variable stm_transferred : integer range 0 to 16;
+		variable stm_completed_regs : std_logic_vector(15 downto 0);
 	begin
 		-- default instruction condition
 		condition <= current_inst(31 downto 28);
@@ -1025,13 +1027,23 @@ begin
 					barrelshift_operand <= '0';
 					literal_shift_amnt <= "00010";
 
+					-- IA/IB/DA keep the original base until the writeback cycle.
+					-- Count registers already selected, not gaps in the register list.
+					-- LDM uses a memory burst; STMDB has separate base writeback.
+					stm_transferred := 0;
+					if current_inst(20) = '0' and current_inst(24 downto 23) /= "10"
+					then
+						stm_completed_regs := current_inst(15 downto 0) and not ldmstm_cur_bitmask;
+						stm_transferred := count_set_bits(stm_completed_regs);
+					end if;
+
 					case current_inst(24 downto 23) is
 					-- IA
-					when "01" => literal_data <= x"000000";
+					when "01" => literal_data <= std_logic_vector(to_unsigned(stm_transferred, 24));
 					-- IB
-					when "11" => literal_data <= x"000001";
+					when "11" => literal_data <= std_logic_vector(to_unsigned(stm_transferred + 1, 24));
 					-- DA
-					when "00" => literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)) - 1, 24));
+					when "00" => literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)) - stm_transferred - 1, 24));
 					-- DB
 					when others =>	literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)), 24));
 					end case;
