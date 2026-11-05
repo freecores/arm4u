@@ -265,7 +265,7 @@ architecture rtl of decode is
 		variable i, res : integer;
 	begin
 		res := 0;
-		for i in 0 to word'length - 1 loop
+		for i in word'range loop
 			if word(i) = '1'
 			then
 				res := res + 1;
@@ -939,8 +939,8 @@ begin
 								next_state <= TWO_LATENCY_CYCLES;
 							end if;
 						
-						-- Is writeback enabled in something that is not STMDB ?
-						elsif current_inst(21) = '1' and (current_inst(24 downto 23) /= "10" or current_inst(20) /= '0')
+						-- Complete every transfer before writing back the base.
+						elsif current_inst(21) = '1'
 						then
 							-- Yes -> a writeback cycle should follow
 							next_state <= LDMSTM_WRITEBACK;
@@ -968,8 +968,6 @@ begin
 
 					-- If we are loading a register which is not R15, writeback si enabled
 					if (current_inst(20) = '1' and ldmstm_current_reg /= 15)
-					-- If base writeback is enabled and we are in a STMDB instruction, writeback is enabled
-					or (current_inst(24 downto 23) = "10" and current_inst(21 downto 20) = "10" and state = MAIN_STATE)
 					then
 						rdest_wren <= '1';
 					else
@@ -1000,7 +998,7 @@ begin
 							mem_ctrl <= LOAD_BURST;
 						end if;
 					else
-						-- Write back the address (STM, only actually used in STMDB, as it's the only case where the address is correct)
+						-- STM writes memory here; base writeback uses its own cycle.
 						wb_sel <= '0';
 						
 						rdest_adr <= address_remap(current_inst(19 downto 16), mode);
@@ -1033,7 +1031,13 @@ begin
 					-- DA
 					when "00" => literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)) - 1, 24));
 					-- DB
-					when others =>	literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)), 24));
+					when others =>
+						if current_inst(20) = '0' then
+							-- Count remaining listed registers while the base is unchanged.
+							literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0) and ldmstm_cur_bitmask), 24));
+						else
+							literal_data <= std_logic_vector(to_signed(count_set_bits(current_inst(15 downto 0)), 24));
+						end if;
 					end case;
 					
 					opb_is_literal <= '1';
